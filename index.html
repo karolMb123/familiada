@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Familiada</title>
+   <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 FAMILIADA 🎯</h1>
+        </div>
+
+        <div class="teams-container">
+            <div class="team team1">
+                <h2 class="team-name">DRUŻYNA 1</h2>
+                <div class="score" id="score1">0</div>
+                <div class="buttons">
+                    <button class="btn btn-add" onclick="addPoints(1, 10)">+10</button>
+                    <button class="btn btn-add" onclick="addPoints(1, 20)">+20</button>
+                    <button class="btn btn-add" onclick="addPoints(1, 50)">+50</button>
+                    <button class="btn btn-subtract" onclick="subtractPoints(1, 10)">-10</button>
+                    <button class="btn btn-reset" onclick="resetTeam(1)">Reset</button>
+                </div>
+            </div>
+
+            <div class="team team2">
+                <h2 class="team-name">DRUŻYNA 2</h2>
+                <div class="score" id="score2">0</div>
+                <div class="buttons">
+                    <button class="btn btn-add" onclick="addPoints(2, 10)">+10</button>
+                    <button class="btn btn-add" onclick="addPoints(2, 20)">+20</button>
+                    <button class="btn btn-add" onclick="addPoints(2, 50)">+50</button>
+                    <button class="btn btn-subtract" onclick="subtractPoints(2, 10)">-10</button>
+                    <button class="btn btn-reset" onclick="resetTeam(2)">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="sound-buttons">
+            <button class="sound-btn" onclick="playSound('correct')">✅ DOBRA ODPOWIEDŹ</button>
+            <button class="sound-btn" onclick="playSound('wrong')">❌ ZŁA ODPOWIEDŹ</button>
+            <button class="sound-btn" onclick="playSound('applause')">👏 Intro!</button>
+            <button class="sound-btn" onclick="playSound('fail')">😍 Po rundzie!</button>
+        </div>
+
+        <div class="reset-all">
+            <button class="btn btn-reset-all" onclick="resetAll()">🔄 RESETUJ WSZYSTKO</button>
+        </div>
+    </div>
+
+    <script>
+        let scores = {1: 0, 2: 0};
+
+        // Ścieżki do plików dźwiękowych - dostosuj nazwy plików do swoich
+        const sounds = {
+            correct: new Audio('sounds/correct.mp3'),
+            wrong: new Audio('sounds/wrong.mp3'),
+            applause: new Audio('sounds/applause.mp3'),
+            fail: new Audio('sounds/fail.mp3')
+        };
+
+        function addPoints(team, points) {
+            scores[team] += points;
+            updateScore(team);
+            playSound('correct');
+        }
+
+        function subtractPoints(team, points) {
+            scores[team] = Math.max(0, scores[team] - points);
+            updateScore(team);
+        }
+
+        function resetTeam(team) {
+            scores[team] = 0;
+            updateScore(team);
+        }
+
+        function resetAll() {
+            scores = {1: 0, 2: 0};
+            updateScore(1);
+            updateScore(2);
+            playSound('fail');
+        }
+
+        function updateScore(team) {
+            const scoreElement = document.getElementById(`score${team}`);
+            scoreElement.textContent = scores[team];
+            scoreElement.classList.add('pulse');
+            setTimeout(() => scoreElement.classList.remove('pulse'), 500);
+        }
+
+        function playSound(soundName) {
+            if (sounds[soundName]) {
+                sounds[soundName].currentTime = 0; // Resetuj dźwięk do początku
+                sounds[soundName].play().catch(e => console.log('Błąd odtwarzania:', e));
+            }
+        }
+    </script>
+</body>
+</html>

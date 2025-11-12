@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Familiada</title>
-   <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styl.css">
 </head>
 <body>
     <div class="container">
@@ -41,8 +41,9 @@
         <div class="sound-buttons">
             <button class="sound-btn" onclick="playSound('correct')">✅ DOBRA ODPOWIEDŹ</button>
             <button class="sound-btn" onclick="playSound('wrong')">❌ ZŁA ODPOWIEDŹ</button>
-            <button class="sound-btn" onclick="playSound('applause')">👏 Intro!</button>
-            <button class="sound-btn" onclick="playSound('fail')">😍 Po rundzie!</button>
+            <button class="sound-btn" onclick="playSound('applause')">👏 BRAWO!</button>
+            <button class="sound-btn" onclick="playSound('fail')">💥 PUDŁO!</button>
+            <button class="sound-btn" onclick="stopAllSounds()" style="background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);">🔇 STOP DŹWIĘKI</button>
         </div>
 
         <div class="reset-all">
@@ -52,6 +53,9 @@
 
     <script>
         let scores = {1: 0, 2: 0};
+        let isPlaying = {}; // Śledzi, które dźwięki są odtwarzane
+        let lastPlayTime = {}; // Zapisuje czas ostatniego odtworzenia
+        const COOLDOWN = 500; // Cooldown w milisekundach (0.5 sekundy)
 
         // Ścieżki do plików dźwiękowych - dostosuj nazwy plików do swoich
         const sounds = {
@@ -92,10 +96,42 @@
         }
 
         function playSound(soundName) {
-            if (sounds[soundName]) {
-                sounds[soundName].currentTime = 0; // Resetuj dźwięk do początku
-                sounds[soundName].play().catch(e => console.log('Błąd odtwarzania:', e));
+            if (!sounds[soundName]) return;
+
+            const now = Date.now();
+            const timeSinceLastPlay = now - (lastPlayTime[soundName] || 0);
+
+            // Sprawdź cooldown - zapobiega spamowaniu
+            if (timeSinceLastPlay < COOLDOWN) {
+                console.log('Poczekaj chwilę przed ponownym odtworzeniem');
+                return;
             }
+
+            // Zatrzymaj dźwięk jeśli już gra
+            if (isPlaying[soundName]) {
+                sounds[soundName].pause();
+                sounds[soundName].currentTime = 0;
+            }
+
+            // Odtwórz dźwięk
+            sounds[soundName].currentTime = 0;
+            sounds[soundName].play().catch(e => console.log('Błąd odtwarzania:', e));
+            
+            isPlaying[soundName] = true;
+            lastPlayTime[soundName] = now;
+
+            // Oznacz jako nieodtwarzane po zakończeniu
+            sounds[soundName].onended = () => {
+                isPlaying[soundName] = false;
+            };
+        }
+
+        function stopAllSounds() {
+            Object.keys(sounds).forEach(soundName => {
+                sounds[soundName].pause();
+                sounds[soundName].currentTime = 0;
+                isPlaying[soundName] = false;
+            });
         }
     </script>
 </body>
